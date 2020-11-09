@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v3.min.js"></script>
+
+<head>
+   <h1 align="center"><u> Understanding Interpretation of Features</u></h1>                                          
+</head>
+
+<style>
+
+text {
+  font: 10px sans-serif;
+}
+rect.background {
+  fill: white;
+  stroke: #646464;
+  stroke-width: 1px;
+  stroke-dasharray: 2,2;
+  stroke-linejoin: round;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+}
+
+.left-div {
+  margin-top: -600px;
+  margin-right: 200px;
+  float:right;
+  height: 600px;
+  width: 600px;
+  
+}
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 {
+  background-color: white; 
+  color: black; 
+  border: 2px solid #4CAF50;
+}
+
+.button1:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+</style>
+<body>
+        <div style="display:none;">
+
+        <audio id="myAudio" controls>
+                <source src="/music/myaudi.mp3" type="audio/mpeg">
+              </audio>
+            </div>     
+<form method="post">
+    <select name="data" id="data" class="dropbtn">
+        <option value="Original">Original Dataset</option>
+        <option value="ROS">Random Under Sampling</option>
+        <option value="RUS">Random Over Sampling</option>
+        <option value="ASS">Adaptive Over Sampling</option>
+        <option value="NCR">Neihbourhood Cleaning Under Sampling</option>
+        <option value="S-TOM">SMOTETom Combination Sampling</option>
+        <option value="S-ENN">SMOTE ENN Combination Sampling</option>
+    </select>
+    <select name="model" id="model" class="dropbtn">
+        <option value="dtg">Decision Trees (Entropy)</option>
+        <option value="dtg">Decision Trees (Gini)</option>
+        <option value="dtg">Random Forest</option>
+        <option value="dtg">"Gradient Boost</option>
+    </select>
+    <br><br>
+  <h2>Select Features to Omit</h2>
+    
+    <label class="container">Schiller
+            <input type="checkbox" name="check" value="Schiller">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Hinselmann
+            <input type="checkbox" name="check" value="Hinselmann">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Citology
+            <input type="checkbox" name="check" value="Citology">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Hormonal Contraceptives (years)
+            <input type="checkbox" name="check" value="Hormonal Contraceptives (years)">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Age
+            <input type="checkbox" name="check" value="Age">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">First sexual intercourse
+            <input type="checkbox" name="check" value="First sexual intercourse">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Num of pregnancies
+            <input type="checkbox" name="check" value="Num of pregnancies">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Number of sexual partners
+            <input type="checkbox" name="check" value="Number of sexual partners">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">STDs (number)
+            <input type="checkbox" name="check" value="STDs (number)">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">IUD (years)
+            <input type="checkbox" name="check" value="IUD (years)">
+            <span class="checkmark"></span>
+    </label>
+    <label class="container">Smokes (years)
+            <input type="checkbox" name="check" value="Smokes (years)">
+            <span class="checkmark"></span>
+    </label>
+    <input type="submit" class="button button1" value="Show Feature Importance" >
+
+</form>
+
+
+
+<p> <b>Accuracy: {{acc}}</b> </p>
+<p><b> Precision: {{prec}}</b> </p>
+<p> <b>Recall: {{rec}}</b> </p>
+  
+<div class="left-div" id="graphDiv">
+<p><b><i>Feature Importance</b><br>
+                                 
+ </i></p>
+</div>
+    
+<script >
+   var x = document.getElementById("myAudio");
+
+function playAudio() {
+  x.play();
+}
+
+(function svg1(){
+    var margin = {top: 20, right: 120, bottom: 0, left: 110},
+    width = 825 - margin.left - margin.right,
+    height = 390 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var barHeight = 20;
+
+var color = d3.scale.ordinal()
+    .range(["green", "#ccc"]);
+
+var duration = 200,
+    delay = 80;
+
+var partition = d3.layout.partition()
+    .value(function(d) { return d.size; });
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("top");
+//kbn
+var svg1 = d3.select("#graphDiv").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+//kbn
+svg1.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height)
+    .on("click", up);
+//kbn
+svg1.append("button")
+    .attr("x", 2)
+    .attr("y", 300)
+    .text("Click here")
+    .on("click", up);
+//kbn
+svg1.append("g")
+    .attr("class", "x axis");
+//kbn
+svg1.append("g")
+    .attr("class", "y axis")
+  .append("line")
+    .attr("y1", "100%");
+
+
+d3.json("/get-data", function(error, root) {
+  partition.nodes(root);
+  x.domain([0, root.val]).nice();
+  down(root, 0);
+//   up(root)
+});
+
+function down(d, i) {
+   
+ 
+  var end = duration + d.length * delay;
+  console.log("**************",d)
+ 
+  var exit = svg1.selectAll(".enter")
+      .attr("class", "exit");
+
+  
+  exit.selectAll("rect").filter(function(p) { return p === d; })
+      .style("fill-opacity", 1e-6);
+
+  
+  var enter = bar1(d)
+      .attr("transform", stack(i))
+      .style("opacity", 1);
+
+  
+  enter.select("text").style("fill-opacity", 1e-6);
+  enter.select("rect").style("fill", color(true));
+
+  x.domain([0, d3.max(d, function(d) { return d.val; })]).nice();
+
+  svg1.selectAll(".x.axis").transition()
+      .duration(duration)
+      .call(xAxis);
+
+  var enterTransition = enter.transition()
+      .duration(duration)
+      .delay(function(d, i) { playAudio(); return i * delay; })
+      .attr("transform", function(d, i) { return "translate(0," + barHeight * i * 1.2 + ")"; });
+
+  enterTransition.select("text")
+      .style("fill-opacity", 1);
+
+  enterTransition.select("rect")
+      .attr("width", function(d) { return x(d.val); })
+      .style("fill", function(d) { return color(!!d); });
+
+  var exitTransition = exit.transition()
+      .duration(duration)
+      .style("opacity", 1e-6)
+      .remove();
+
+  exitTransition.selectAll("rect")
+      .attr("width", function(d) { return x(d.val); });
+
+  svg1.select(".background")
+      .datum(d)
+    .transition()
+      .duration(end);
+
+  d.index = i;
+}
+
+function up(d) {
+
+  var end = duration + d.length * delay;
+
+  var exit = svg1.selectAll(".enter")
+      .attr("class", "exit");
+
+  var enter = bar(d)
+      .attr("transform", function(d, i) { return "translate(0," + barHeight * i * 1.2 + ")"; })
+      .style("opacity", 1e-6);
+  
+  enter.select("rect")
+      .style("fill", function(d) { return color(!!d); })
+    .filter(function(p) { return p === d; })
+      .style("fill-opacity", 1e-6);
+  x.domain([0, d3.max(d, function(d) { return d.val; })]).nice();
+
+  svg1.selectAll(".x.axis").transition()
+      .duration(duration)
+      .call(xAxis);
+
+  var enterTransition = enter.transition()
+      .duration(end)
+      .style("opacity", 1);
+
+  enterTransition.select("rect")
+      .attr("width", function(d) { playAudio(); return x(d.val); })
+      .each("end", function(p) { if (p === d) d3.select(this).style("fill-opacity", null); });
+
+  var exitTransition = exit.selectAll("g").transition()
+      .duration(duration)
+      .delay(function(d, i) { return i * delay; })
+      .attr("transform", stack(d.index));
+
+  exitTransition.select("text")
+      .style("fill-opacity", 1e-6);
+
+  exitTransition.select("rect")
+      .attr("width", function(d) { return x(d.val); })
+      .style("fill", color(true));
+
+  exit.transition()
+      .duration(end)
+      .remove();
+
+  svg1.select(".background")
+      .datum(d.parent)
+    .transition()
+      .duration(end);
+}
+
+function bar(d) {
+  var bar = svg1.insert("g", ".y.axis")
+      .attr("class", "enter")
+      .attr("transform", "translate(0,5)")
+    .selectAll("g")
+      .data(d)
+    .enter().append("g")
+      .style("cursor", function(d) { return !d ? null : "pointer"; })
+      .on("click", down);
+
+  bar.append("text")
+      .attr("x", -6)
+      .attr("y", barHeight / 2)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d.name; });
+
+  bar.append("rect")
+      .attr("width", function(d) { return x(d.val); })
+      .attr("height", barHeight);
+
+  return bar;
+}
+
+function bar1(d) {
+  var bar = svg1.insert("g", ".y.axis")
+      .attr("class", "enter")
+      .attr("transform", "translate(0,5)")
+    .selectAll("g")
+      .data(d)
+    .enter().append("g")
+      .style("cursor", function(d) { return !d ? null : "pointer"; })
+      .on("click", down);
+
+  bar.append("text")
+      .attr("x", -6)
+      .attr("y", barHeight / 2)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d.name; });
+
+  bar.append("rect")
+      .attr("width", function(d) { return x(d.val); })
+      .attr("height", barHeight);
+
+  return bar;
+}
+
+function stack(i) {
+  var x0 = 0;
+  return function(d) {
+    var tx = "translate(" + x0 + "," + barHeight * i * 1.2 + ")";
+    x0 += x(d.val);
+    return tx;
+  };
+}})()
+      
+</script>
+</body>
+</html>
